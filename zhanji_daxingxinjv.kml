@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>詹记（大兴新居店）</name>
+    <Placemark>
+      <name>詹记（大兴新居店）</name>
+      <description><![CDATA[
+名称：詹记桃酥(大兴新居店)
+匹配关键词：詹记
+类型：餐饮服务;糕饼店;糕饼店
+类型编码：050800
+地址：顺安河路和张集路交口拐角大兴新居邻里中心PS-1F-02号商铺
+区县：
+电话：18756010800
+原始坐标（GCJ-02）：117.375187, 31.839279
+WGS84坐标：117.36946221514462, 31.841118783338167
+备注：该点位从项目原有的詹记聚合 KML 中拆分为独立资源。
+      ]]></description>
+      <Point>
+        <coordinates>117.36946221514462,31.841118783338167,0.0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

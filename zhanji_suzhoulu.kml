@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>詹记（宿州路店）</name>
+    <Placemark>
+      <name>詹记（宿州路店）</name>
+      <description><![CDATA[
+名称：詹记桃酥(宿州路店)
+城市：合肥市庐阳区
+地址：宿州路139号（四牌楼地铁站D口步行约480米）
+坐标说明：该点位已按公开地址“合肥市庐阳区宿州路139号”、四牌楼地铁站D口步行约480米、以及“靠近淮河路步行街”的公开描述做二次校准；当前坐标适合作为项目演示与图层控制使用，若用于正式选址分析，仍建议以后续地图导出点或实测坐标复核。
+备注：作为独立 KML 资源接入图层树，可单独显示/隐藏。
+      ]]></description>
+      <Point>
+        <coordinates>117.285780,31.871560,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

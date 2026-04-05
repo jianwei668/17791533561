@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run local static server",
+			"type": "shell",
+			"command": "d:/Downloads/Edge/map_demo2_ui_pro/map_demo2_ascii/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"http.server",
+				"4173"
+			],
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>服务业区位选址系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand-block">
+                <div class="brand-mark"><i class="fas fa-map-location-dot"></i></div>
+                <div class="brand-copy">
+                    <span class="eyebrow">Service industry location selection system</span>
+                    <h1>服务业区位选址系统</h1>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button id="importKml" class="btn btn-primary"><i class="fas fa-file-import"></i> 导入KML</button>
+                    <button id="exportKml" class="btn btn-secondary"><i class="fas fa-file-export"></i> 导出KML</button>
+                    <button id="toggleHeatmapBtn" class="btn btn-heat"><i class="fas fa-fire"></i> 热力图开/关</button>
+                </div>
+
+                <div class="toolbar-group toolbar-group-compact">
+                    <div class="layer-control glass-input">
+                        <label for="baseLayerSelect">底图</label>
+                        <select id="baseLayerSelect">
+                            <option value="streets" selected>最新街道地图</option>
+                            <option value="satellite">卫星影像</option>
+                            <option value="hybrid">混合地图</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <section class="map-stage">
+                <button id="sidebarOpenBtn" class="sidebar-open-btn" title="展开面板" style="display:none">
+                    <i class="fas fa-angles-left"></i>
+                </button>
+                <div class="map-shell">
+                    <div class="map-top-overlay" style="display:none">
+                        <div id="systemStatus" class="status-chip"><i class="fas fa-circle-notch fa-spin"></i> 正在初始化项目资源...</div>
+                    </div>
+
+                    <div id="map"></div>
+
+                    <div class="map-bottom-overlay" style="display:none">
+                        <div class="overlay-card">
+                            <span>当前底图</span>
+                            <strong id="currentBasemapLabel">最新街道地图</strong>
+                        </div>
+                        <div class="overlay-card">
+                            <span>热力状态</span>
+                            <strong id="currentHeatStatus">未生成</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="panel" id="sidebarPanel">
+                <button id="sidebarToggleBtn" class="sidebar-toggle-btn" title="收起面板">
+                    <i class="fas fa-angles-right"></i>
+                </button>
+                <section class="panel-card panel-card-hero">
+                    <div class="panel-card-head">
+                        <div>
+                            <p class="panel-overline">Workspace</p>
+                            <h3><i class="fas fa-sparkles"></i> 当前工作台</h3>
+                        </div>
+                        <span class="badge badge-live">LIVE</span>
+                    </div>
+                    <div class="quick-chips">
+                        <span class="chip"><i class="fas fa-layer-group"></i> 图层树</span>
+                        <span class="chip"><i class="fas fa-fire"></i> 热力控制</span>
+                        <span class="chip"><i class="fas fa-route"></i> 测量标绘</span>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-card-head">
+                        <div>
+                            <p class="panel-overline">Controls</p>
+                            <h3><i class="fas fa-fire"></i> 热力图控制</h3>
+                        </div>
+                    </div>
+
+                    <div class="population-time-block">
+                        <div class="control-group control-group-inline population-time-inline">
+                            <label for="populationHourSelect">人口时段</label>
+                            <select id="populationHourSelect"></select>
+                        </div>
+
+                        </div>
+
+                        <div class="control-group control-group-inline">
+                        <label for="heatImportMode">导入模式</label>
+                        <select id="heatImportMode">
+                            <option value="replace">覆盖模式（默认）</option>
+                            <option value="append">累积模式</option>
+                        </select>
+                    </div>
+
+                    <div class="range-group">
+                        <div class="range-head">
+                            <label for="heatRadius">热点范围</label>
+                            <span id="heatRadiusValue">25</span>
+                        </div>
+                        <input type="range" id="heatRadius" min="10" max="50" value="25">
+                    </div>
+
+                    <div class="range-group">
+                        <div class="range-head">
+                            <label for="heatBlur">边缘柔和度</label>
+                            <span id="heatBlurValue">18</span>
+                        </div>
+                        <input type="range" id="heatBlur" min="5" max="40" value="18">
+                    </div>
+
+                    <div class="range-group">
+                        <div class="range-head">
+                            <label for="heatMinOpacity">最小透明度</label>
+                            <span id="heatMinOpacityValue">0.35</span>
+                        </div>
+                        <input type="range" id="heatMinOpacity" min="0" max="1" step="0.01" value="0.35">
+                    </div>
+
+                    <div class="stack-actions">
+                        <button id="rebuildHeatmap" class="btn btn-primary btn-full"><i class="fas fa-rotate"></i> 重新生成热力图</button>
+                        <button id="clearHeatmapBtn" class="btn btn-danger btn-full"><i class="fas fa-trash-alt"></i> 清空热力图</button>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-card-head">
+                        <div>
+                            <p class="panel-overline">Layers</p>
+                            <h3><i class="fas fa-sitemap"></i> 图层树</h3>
+                        </div>
+                        <div class="panel-actions-inline">
+                            <button id="expandAllLayers" class="mini-btn" title="全部展开"><i class="fas fa-angles-down"></i></button>
+                            <button id="collapseAllLayers" class="mini-btn" title="全部收起"><i class="fas fa-angles-up"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input id="layerSearchInput" type="text" placeholder="搜索图层名称，例如：詹记 / 公交 / 小学">
+                    </div>
+
+                    <div id="layersList"></div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-card-head">
+                        <div>
+                            <p class="panel-overline">Inspector</p>
+                            <h3><i class="fas fa-circle-info"></i> 信息面板</h3>
+                        </div>
+                    </div>
+                    <div id="infoPanel" class="content-stack"></div>
+                </section>
+
+                <section class="panel-card panel-card-split">
+                    <div>
+                        <div class="panel-card-head compact-head">
+                            <div>
+                                <p class="panel-overline">Measure</p>
+                                <h3><i class="fas fa-ruler-combined"></i> 测量结果</h3>
+                            </div>
+                        </div>
+                        <div id="measurementResults" class="content-stack"></div>
+                    </div>
+                    <div>
+                        <div class="panel-card-head compact-head">
+                            <div>
+                                <p class="panel-overline">Heatmap</p>
+                                <h3><i class="fas fa-chart-area"></i> 热力状态</h3>
+                            </div>
+                        </div>
+                        <div id="heatmapInfo" class="content-stack"></div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <input type="file" id="kmlFileInput" accept=".kml,.kmz" style="display: none;">
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
